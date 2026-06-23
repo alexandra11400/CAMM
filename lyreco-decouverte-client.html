@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyreco — Découverte Client</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-mid: #0C447C;
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --amber-mid: #BA7517;
+    --red-light: #FCEBEB;
+    --red: #A32D2D;
+    --border: #e2e2e2;
+    --bg: #f7f7f5;
+    --bg-card: #ffffff;
+    --bg-secondary: #f3f3f1;
+    --text: #1a1a1a;
+    --text-muted: #6b6b68;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+
+  /* HEADER */
+  .app-header { background: var(--blue); color: #fff; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .app-header .logo { font-size: 18px; font-weight: 600; letter-spacing: 0.02em; }
+  .app-header .subtitle { font-size: 13px; opacity: 0.8; }
+
+  /* PROGRESS */
+  .progress-wrap { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+  .progress-bar { display: flex; align-items: flex-start; gap: 0; position: relative; max-width: 760px; margin: 0 auto; }
+  .progress-bar::before { content: ''; position: absolute; top: 14px; left: 5%; right: 5%; height: 1px; background: var(--border); z-index: 0; }
+  .step-dot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; position: relative; z-index: 1; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
+  .dot.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .step-lbl { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.3; }
+  .step-lbl.active { color: var(--blue); font-weight: 600; }
+
+  /* LAYOUT */
+  .container { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+  .card.highlight { border-color: var(--blue); border-width: 1.5px; }
+  .card.success-card { border-color: var(--green); border-width: 1.5px; }
+
+  /* SECTION TITLES */
+  .section-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .section-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; }
+
+  /* FORMS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit; background: var(--bg-card); color: var(--text);
+    transition: border-color 0.15s; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  /* CHECKBOXES */
+  .check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 8px; margin-bottom: 1rem; }
+  .check-item { display: flex; align-items: center; gap: 9px; padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; transition: all 0.15s; user-select: none; }
+  .check-item:hover { border-color: #b0b0b0; background: var(--bg-secondary); }
+  .check-item.on { border-color: var(--blue); background: var(--blue-light); color: var(--blue-mid); font-weight: 500; }
+  .check-item input { display: none; }
+  .check-item .ci-icon { font-size: 16px; }
+
+  /* SLIDERS */
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .slider-row .s-label { flex: 0 0 155px; font-size: 13px; color: var(--text-muted); }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--blue); }
+  .slider-val { font-size: 13px; font-weight: 600; min-width: 36px; text-align: right; color: var(--text); }
+
+  /* NAV */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .step-info { font-size: 12px; color: var(--text-muted); }
+  .btn { padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); display: inline-flex; align-items: center; gap: 7px; transition: all 0.15s; font-family: inherit; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn.primary:hover { background: var(--blue-mid); }
+  .btn.success { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn.success:hover { background: #27500A; }
+  .btn.outline-red { border-color: #e0b0b0; color: var(--red); }
+  .btn.outline-red:hover { background: var(--red-light); }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* SYNTHÈSE */
+  .synth-block { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; }
+  .synth-block-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .synth-row { display: flex; align-items: flex-start; gap: 1rem; padding: 7px 0; border-bottom: 1px solid var(--bg-secondary); font-size: 13px; }
+  .synth-row:last-child { border-bottom: none; }
+  .synth-label { color: var(--text-muted); flex: 0 0 155px; }
+  .synth-val { font-weight: 500; flex: 1; }
+  .tag-wrap { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 0; }
+
+  /* OFFRES */
+  .offer-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.6rem; }
+  .offer-card.prio { border-color: var(--blue); border-width: 1.5px; }
+  .offer-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  .offer-desc { font-size: 13px; color: var(--text-muted); }
+
+  /* PROPOSITION COMMERCIALE */
+  .prop-cover { background: var(--blue); color: #fff; border-radius: var(--radius); padding: 2rem; margin-bottom: 1rem; position: relative; overflow: hidden; }
+  .prop-cover::before { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+  .prop-cover::after { content: ''; position: absolute; right: 30px; bottom: -50px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .prop-logo { font-size: 22px; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem; opacity: 0.95; }
+  .prop-title { font-size: 26px; font-weight: 700; margin-bottom: 0.25rem; }
+  .prop-sub { font-size: 14px; opacity: 0.8; margin-bottom: 1.5rem; }
+  .prop-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; position: relative; z-index: 1; }
+  .prop-meta-box { background: rgba(255,255,255,0.12); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
+  .prop-meta-label { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .prop-meta-val { font-size: 14px; font-weight: 600; }
+  .prop-meta-sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+
+  .psec { margin-bottom: 1.25rem; }
+  .psec-header { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--blue); margin-bottom: 1rem; }
+  .psec-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .psec-num.green { background: var(--green); }
+  .psec-title { font-size: 16px; font-weight: 700; }
+
+  .risk-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f0f0ee; font-size: 13px; }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { padding: 9px 12px; background: var(--bg-secondary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: left; }
+  .comp-table td { padding: 9px 12px; border-bottom: 1px solid #f0f0ee; vertical-align: top; }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-arrow { text-align: center; color: var(--amber-mid); font-weight: 700; }
+  .comp-after { color: var(--green); font-weight: 600; }
+
+  .pcard { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.6rem; }
+  .pcard.hi { border-color: var(--blue); border-width: 1.5px; }
+  .pcard.hi2 { border-color: var(--green); border-width: 1.5px; }
+  .pcard-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pcard-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .pcard-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+
+  .eshop-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .eshop-table th { padding: 8px 10px; background: var(--bg-secondary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: left; }
+  .eshop-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0ee; }
+  .eshop-table tr:last-child td { border-bottom: none; }
+  .chk { color: var(--green); font-size: 16px; font-weight: 700; }
+
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .kpi-box { background: var(--blue-light); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+  .kpi-box.g { background: var(--green-light); }
+  .kpi-val { font-size: 22px; font-weight: 700; color: var(--blue); }
+  .kpi-box.g .kpi-val { color: var(--green); }
+  .kpi-lbl { font-size: 12px; color: var(--text-muted); margin-bottom: 3px; }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  .phase-wrap { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 0.6rem; }
+  .phase-hd { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+  .phase-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .phase-num.g { background: var(--green); }
+  .phase-info { flex: 1; }
+  .phase-name { font-size: 14px; font-weight: 700; }
+  .phase-timing { font-size: 12px; color: var(--text-muted); }
+  .phase-body { padding: 0.75rem 1rem; }
+  .task { display: flex; align-items: flex-start; gap: 9px; padding: 6px 0; border-bottom: 1px solid #f5f5f3; font-size: 13px; line-height: 1.5; }
+  .task:last-child { border-bottom: none; }
+  .task-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); margin-top: 6px; flex-shrink: 0; }
+  .task-dot.g { background: var(--green); }
+  .task-txt { flex: 1; }
+  .task-tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--blue-light); color: var(--blue); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .task-tag.g { background: var(--green-light); color: var(--green); }
+  .task-tag.a { background: var(--amber-light); color: var(--amber); }
+  .kpi-mini { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 0.75rem; }
+  .kpi-mini-box { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 0.5rem; text-align: center; }
+  .kpi-mini-val { font-size: 14px; font-weight: 700; color: var(--blue); }
+  .kpi-mini-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .next-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f0f0ee; }
+  .next-row:last-child { border-bottom: none; }
+  .next-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .next-num.g { background: var(--green); }
+  .next-title { font-size: 14px; font-weight: 600; }
+  .next-sub { font-size: 12px; color: var(--text-muted); }
+
+  .prop-footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  /* PRINT */
+  .print-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 1rem; }
+  @media print {
+    .app-header .subtitle, .progress-wrap, .nav-row, .print-bar, .btn, .no-print { display: none !important; }
+    body { background: #fff; }
+    .container { padding: 0.5rem; }
+    .card, .phase-wrap, .pcard { break-inside: avoid; }
+    .page { display: none !important; }
+    .page.print-target { display: block !important; }
+  }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .slider-row .s-label { flex: 0 0 120px; }
+    .step-lbl { display: none; }
+    .container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <div class="logo"><i class="ti ti-building-store"></i> LYRECO</div>
+    <div class="subtitle">Outil de découverte client</div>
+  </div>
+  <div style="font-size:13px;opacity:0.8" id="header-company"></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar">
+    <div class="step-dot" onclick="goto(0)"><div class="dot active" id="d0">1</div><div class="step-lbl active" id="l0">Entreprise</div></div>
+    <div class="step-dot" onclick="goto(1)"><div class="dot" id="d1">2</div><div class="step-lbl" id="l1">Fournisseurs</div></div>
+    <div class="step-dot" onclick="goto(2)"><div class="dot" id="d2">3</div><div class="step-lbl" id="l2">Catégories</div></div>
+    <div class="step-dot" onclick="goto(3)"><div class="dot" id="d3">4</div><div class="step-lbl" id="l3">Organisation</div></div>
+    <div class="step-dot" onclick="goto(4)"><div class="dot" id="d4">5</div><div class="step-lbl" id="l4">Enjeux</div></div>
+    <div class="step-dot" onclick="goto(5)"><div class="dot" id="d5">6</div><div class="step-lbl" id="l5">Synthèse</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- PAGE 1 : ENTREPRISE -->
+<div class="page active" id="page0">
+  <div class="card">
+    <div class="section-title"><i class="ti ti-building"></i> Informations entreprise</div>
+    <div class="section-desc">Renseignez les informations clés de votre prospect</div>
+    <div class="grid-2">
+      <div class="field"><label>Nom de l'entreprise *</label><input id="f_nom" type="text" placeholder="Ex : Groupe Martin SA" oninput="document.getElementById('header-company').textContent=this.value"></div>
+      <div class="field"><label>Secteur d'activité</label>
+        <select id="f_secteur">
+          <option value="">— Choisir —</option>
+          <option>Industrie / Manufacturing</option>
+          <option>Logistique / Transport</option>
+          <option>Santé / Médico-social</option>
+          <option>Services / Tertiaire</option>
+          <option>Distribution / Retail</option>
+          <option>Construction / BTP</option>
+          <option>Banque / Assurance</option>
+          <option>Éducation / Formation</option>
+          <option>Collectivité / Public</option>
+          <option>Autre</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Effectif total</label>
+        <select id="f_effectif">
+          <option value="">—</option>
+          <option>100 – 250</option>
+          <option>250 – 500</option>
+          <option>500 – 1 000</option>
+          <option>1 000 – 5 000</option>
+          <option>+ 5 000</option>
+        </select>
+      </div>
+      <div class="field"><label>Nb de sites / établissements</label><input id="f_sites" type="number" min="1" placeholder="Ex : 3"></div>
+      <div class="field"><label>Ville principale</label><input id="f_ville" type="text" placeholder="Ex : Lyon"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Nom de l'interlocuteur *</label><input id="f_contact" type="text" placeholder="Prénom Nom"></div>
+      <div class="field"><label>Fonction</label><input id="f_fonction" type="text" placeholder="Ex : Directeur Achats"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Email</label><input id="f_email" type="email" placeholder="contact@entreprise.fr"></div>
+      <div class="field"><label>Téléphone</label><input id="f_tel" type="tel" placeholder="06 xx xx xx xx"></div>
+    </div>
+    <div class="grid-1">
+      <div class="field"><label>Date du rendez-vous</label><input id="f_date" type="date"></div>
+    </div>
+    <div class="nav-row">
+      <span class="step-info">Étape 1 / 6</span>
+      <button class="btn primary" onclick="next()">Suivant <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 : FOURNISSEURS -->
+<div class="page" id="page1">
+  <div class="card">
+    <div class="section-title"><i class="ti ti-truck"></i> Situation fournisseurs actuelle</div>
+    <div class="section-desc">Comprendre avec qui le client travaille aujourd'hui et sa satisfaction</div>
+    <div class="grid-1">
+      <div class="field"><label>Fournisseurs actuels (noms)</label><input id="f_fournisseurs" type="text" placeholder="Ex : Staples, Amazon Business, fournisseur local..."></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Budget achats indirects estimé / an</label>
+        <select id="f_budget">
+          <option value="">— Inconnu —</option>
+          <option>Moins de 50 000 €</option>
+          <option>50 000 – 100 000 €</option>
+          <option>100 000 – 300 000 €</option>
+          <option>300 000 – 600 000 €</option>
+          <option>Plus de 600 000 €</option>
+        </select>
+      </div>
+      <div class="field"><label>Contrat en cours ?</label>
+        <select id="f_contrat">
+          <option value="">—</option>
+          <option>Non, pas de contrat</option>
+          <option>Oui, échéance &lt; 3 mois</option>
+          <option>Oui, échéance 3 – 12 mois</option>
+          <option>Oui, échéance &gt; 12 mois</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;font-weight:500">Satisfaction actuelle fournisseur(s)</p>
+    <div class="slider-row"><span class="s-label">Qualité produits</span><input type="range" min="1" max="5" value="3" id="s_qualite" step="1" oninput="upd('s_qualite','sv_qualite')"><span class="slider-val" id="sv_qualite">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Délais livraison</span><input type="range" min="1" max="5" value="3" id="s_delai" step="1" oninput="upd('s_delai','sv_delai')"><span class="slider-val" id="sv_delai">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Prix / compétitivité</span><input type="range" min="1" max="5" value="3" id="s_prix" step="1" oninput="upd('s_prix','sv_prix')"><span class="slider-val" id="sv_prix">3/5</span></div>
+    <div class="slider-row"><span class="s-label">SAV / relation client</span><input type="range" min="1" max="5" value="3" id="s_sav" step="1" oninput="upd('s_sav','sv_sav')"><span class="slider-val" id="sv_sav">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Outils / digitalisation</span><input type="range" min="1" max="5" value="3" id="s_digital" step="1" oninput="upd('s_digital','sv_digital')"><span class="slider-val" id="sv_digital">3/5</span></div>
+    <div style="margin-top:1rem" class="grid-1">
+      <div class="field"><label>Points de frustration / ce qui manque</label><textarea id="f_frustration" placeholder="Ex : délais trop longs sur certains sites, catalogue mal adapté, facturation complexe..."></textarea></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn" onclick="prev()"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn primary" onclick="next()">Suivant <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3 : CATÉGORIES -->
+<div class="page" id="page2">
+  <div class="card">
+    <div class="section-title"><i class="ti ti-package"></i> Catégories de produits concernées</div>
+    <div class="section-desc">Sélectionnez toutes les familles de produits achetés ou à développer</div>
+    <div class="check-grid">
+      <label class="check-item" id="ci_bureau" onclick="toggleCI('ci_bureau')"><input type="checkbox" id="cb_bureau"><i class="ti ti-pencil ci-icon"></i> Fournitures de bureau</label>
+      <label class="check-item" id="ci_papier" onclick="toggleCI('ci_papier')"><input type="checkbox" id="cb_papier"><i class="ti ti-file ci-icon"></i> Papier / Impression</label>
+      <label class="check-item" id="ci_epi" onclick="toggleCI('ci_epi')"><input type="checkbox" id="cb_epi"><i class="ti ti-shield ci-icon"></i> EPI / Sécurité</label>
+      <label class="check-item" id="ci_hygiene" onclick="toggleCI('ci_hygiene')"><input type="checkbox" id="cb_hygiene"><i class="ti ti-droplet ci-icon"></i> Hygiène / Nettoyage</label>
+      <label class="check-item" id="ci_mobilier" onclick="toggleCI('ci_mobilier')"><input type="checkbox" id="cb_mobilier"><i class="ti ti-armchair ci-icon"></i> Mobilier de bureau</label>
+      <label class="check-item" id="ci_cafet" onclick="toggleCI('ci_cafet')"><input type="checkbox" id="cb_cafet"><i class="ti ti-coffee ci-icon"></i> Cafétéria / Restauration</label>
+      <label class="check-item" id="ci_it" onclick="toggleCI('ci_it')"><input type="checkbox" id="cb_it"><i class="ti ti-device-laptop ci-icon"></i> Accessoires IT / Tech</label>
+      <label class="check-item" id="ci_emballage" onclick="toggleCI('ci_emballage')"><input type="checkbox" id="cb_emballage"><i class="ti ti-box ci-icon"></i> Emballage / Expédition</label>
+      <label class="check-item" id="ci_signa" onclick="toggleCI('ci_signa')"><input type="checkbox" id="cb_signa"><i class="ti ti-sign-right ci-icon"></i> Signalisation / Affichage</label>
+      <label class="check-item" id="ci_entretien" onclick="toggleCI('ci_entretien')"><input type="checkbox" id="cb_entretien"><i class="ti ti-tool ci-icon"></i> Entretien des locaux</label>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Autres catégories non listées</label><input id="f_autres_cats" type="text" placeholder="Ex : vêtements de travail, cadeaux d'affaires..."></div>
+      <div class="field"><label>Volume de commandes estimé / mois</label>
+        <select id="f_freq">
+          <option value="">—</option>
+          <option>1 – 5 commandes / mois</option>
+          <option>5 – 15 commandes / mois</option>
+          <option>15 – 30 commandes / mois</option>
+          <option>30 – 100 commandes / mois</option>
+          <option>Plus de 100 commandes / mois</option>
+        </select>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn" onclick="prev()"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn primary" onclick="next()">Suivant <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4 : ORGANISATION -->
+<div class="page" id="page3">
+  <div class="card">
+    <div class="section-title"><i class="ti ti-sitemap"></i> Organisation des achats</div>
+    <div class="section-desc">Comment le client gère-t-il ses approvisionnements aujourd'hui ?</div>
+    <div class="grid-2">
+      <div class="field"><label>Centralisation des achats</label>
+        <select id="f_centralisation">
+          <option value="">—</option>
+          <option>Centralisé (un seul donneur d'ordre)</option>
+          <option>Semi-centralisé (siège + sites autonomes)</option>
+          <option>Décentralisé (chaque site commande)</option>
+        </select>
+      </div>
+      <div class="field"><label>Décideur final des achats</label>
+        <select id="f_decideur">
+          <option value="">—</option>
+          <option>Direction Générale</option>
+          <option>Direction Achats</option>
+          <option>Direction Administrative / DAF</option>
+          <option>Responsable de site</option>
+          <option>Plusieurs décideurs</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Outil de commande actuel</label>
+        <select id="f_outil">
+          <option value="">—</option>
+          <option>Téléphone / Email uniquement</option>
+          <option>Site web fournisseur</option>
+          <option>Catalogue papier</option>
+          <option>ERP (SAP, Oracle...)</option>
+          <option>Punch-out / Plateforme P2P</option>
+          <option>Pas d'outil défini</option>
+        </select>
+      </div>
+      <div class="field"><label>Budget décidé par</label>
+        <select id="f_budget_decision">
+          <option value="">—</option>
+          <option>Siège uniquement</option>
+          <option>Siège + enveloppe par site</option>
+          <option>Chaque site librement</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;font-weight:500">Outils / solutions souhaités</p>
+    <div class="check-grid">
+      <label class="check-item" id="ci_eprocurement" onclick="toggleCI('ci_eprocurement')"><input type="checkbox" id="cb_eprocurement"><i class="ti ti-shopping-cart ci-icon"></i> E-procurement</label>
+      <label class="check-item" id="ci_reporting" onclick="toggleCI('ci_reporting')"><input type="checkbox" id="cb_reporting"><i class="ti ti-chart-bar ci-icon"></i> Reporting dépenses</label>
+      <label class="check-item" id="ci_catalogue_perso" onclick="toggleCI('ci_catalogue_perso')"><input type="checkbox" id="cb_catalogue_perso"><i class="ti ti-list ci-icon"></i> Catalogue personnalisé</label>
+      <label class="check-item" id="ci_fact_centralisee" onclick="toggleCI('ci_fact_centralisee')"><input type="checkbox" id="cb_fact_centralisee"><i class="ti ti-file-invoice ci-icon"></i> Facturation centralisée</label>
+      <label class="check-item" id="ci_multisite" onclick="toggleCI('ci_multisite')"><input type="checkbox" id="cb_multisite"><i class="ti ti-map-pin ci-icon"></i> Livraison multi-sites</label>
+      <label class="check-item" id="ci_csr" onclick="toggleCI('ci_csr')"><input type="checkbox" id="cb_csr"><i class="ti ti-leaf ci-icon"></i> Démarche RSE</label>
+    </div>
+    <div class="grid-1">
+      <div class="field"><label>Commentaires sur le processus actuel</label><textarea id="f_process_comment" placeholder="Ex : pas de visibilité sur les dépenses des sites distants, délai de validation trop long..."></textarea></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn" onclick="prev()"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn primary" onclick="next()">Suivant <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5 : ENJEUX -->
+<div class="page" id="page4">
+  <div class="card">
+    <div class="section-title"><i class="ti ti-target"></i> Enjeux et priorités client</div>
+    <div class="section-desc">Évaluez l'importance de chaque enjeu pour ce prospect (1 = faible, 5 = critique)</div>
+    <div class="slider-row"><span class="s-label">Réduction des coûts</span><input type="range" min="1" max="5" value="3" id="e_cout" step="1" oninput="upd('e_cout','ev_cout')"><span class="slider-val" id="ev_cout">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Fiabilité livraisons</span><input type="range" min="1" max="5" value="3" id="e_livraison" step="1" oninput="upd('e_livraison','ev_livraison')"><span class="slider-val" id="ev_livraison">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Simplification admin.</span><input type="range" min="1" max="5" value="3" id="e_admin" step="1" oninput="upd('e_admin','ev_admin')"><span class="slider-val" id="ev_admin">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Consolidation fournisseurs</span><input type="range" min="1" max="5" value="3" id="e_consolid" step="1" oninput="upd('e_consolid','ev_consolid')"><span class="slider-val" id="ev_consolid">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Digitalisation achats</span><input type="range" min="1" max="5" value="3" id="e_digital" step="1" oninput="upd('e_digital','ev_digital')"><span class="slider-val" id="ev_digital">3/5</span></div>
+    <div class="slider-row"><span class="s-label">RSE / Éco-responsabilité</span><input type="range" min="1" max="5" value="2" id="e_rse" step="1" oninput="upd('e_rse','ev_rse')"><span class="slider-val" id="ev_rse">2/5</span></div>
+    <div class="slider-row"><span class="s-label">Qualité / gamme produits</span><input type="range" min="1" max="5" value="3" id="e_gamme" step="1" oninput="upd('e_gamme','ev_gamme')"><span class="slider-val" id="ev_gamme">3/5</span></div>
+    <div class="slider-row"><span class="s-label">Gestion multi-sites</span><input type="range" min="1" max="5" value="3" id="e_multisite" step="1" oninput="upd('e_multisite','ev_multisite')"><span class="slider-val" id="ev_multisite">3/5</span></div>
+    <div style="margin-top:1rem" class="grid-1">
+      <div class="field"><label>Projet ou échéance identifiée</label><input id="f_projet" type="text" placeholder="Ex : ouverture d'un nouveau site en mars, appel d'offres prévu en Q3..."></div>
+    </div>
+    <div class="grid-1">
+      <div class="field"><label>Notes libres — observations, contexte, verbatim client</label><textarea id="f_notes" placeholder="Tout ce qui peut être utile pour construire l'offre..."></textarea></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn" onclick="prev()"><i class="ti ti-arrow-left"></i> Retour</button>
+      <button class="btn success" onclick="buildSynth()">Générer la synthèse <i class="ti ti-sparkles"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 6 : SYNTHÈSE -->
+<div class="page" id="page5">
+  <div class="print-bar">
+    <button class="btn outline-red" onclick="resetForm()"><i class="ti ti-refresh"></i> Nouveau prospect</button>
+    <button class="btn primary" onclick="printSynth()"><i class="ti ti-printer"></i> Imprimer / PDF</button>
+  </div>
+
+  <div class="card" id="synth-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
+      <div>
+        <div class="section-title"><i class="ti ti-file-text"></i> Synthèse découverte client</div>
+        <div style="font-size:13px;color:var(--text-muted)" id="synth_date_label">Générée le —</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:700;color:var(--blue)">LYRECO</div>
+        <div style="font-size:11px;color:var(--text-muted)">Confidentiel</div>
+      </div>
+    </div>
+
+    <div class="synth-block">
+      <div class="synth-block-title">Entreprise</div>
+      <div class="synth-row"><span class="synth-label">Société</span><span class="synth-val" id="sy_nom">—</span></div>
+      <div class="synth-row"><span class="synth-label">Secteur</span><span class="synth-val" id="sy_secteur">—</span></div>
+      <div class="synth-row"><span class="synth-label">Effectif / Sites</span><span class="synth-val" id="sy_effectif">—</span></div>
+      <div class="synth-row"><span class="synth-label">Interlocuteur</span><span class="synth-val" id="sy_contact">—</span></div>
+    </div>
+
+    <div class="synth-block">
+      <div class="synth-block-title">Situation actuelle</div>
+      <div class="synth-row"><span class="synth-label">Fournisseurs</span><span class="synth-val" id="sy_fourn">—</span></div>
+      <div class="synth-row"><span class="synth-label">Budget estimé</span><span class="synth-val" id="sy_budget">—</span></div>
+      <div class="synth-row"><span class="synth-label">Contrat en cours</span><span class="synth-val" id="sy_contrat">—</span></div>
+      <div class="synth-row"><span class="synth-label">Satisfaction globale</span><span class="synth-val" id="sy_sat">—</span></div>
+      <div class="synth-row" id="sy_frustration_row" style="display:none"><span class="synth-label">Points de friction</span><span class="synth-val" id="sy_frustration"></span></div>
+    </div>
+
+    <div class="synth-block">
+      <div class="synth-block-title">Catégories identifiées</div>
+      <div class="tag-wrap" id="sy_cats"></div>
+    </div>
+
+    <div class="synth-block">
+      <div class="synth-block-title">Enjeux prioritaires (≥ 4/5)</div>
+      <div class="tag-wrap" id="sy_enjeux"></div>
+    </div>
+
+    <div class="synth-block">
+      <div class="synth-block-title" style="margin-bottom:0.75rem">Offre Lyreco recommandée</div>
+      <div id="sy_offres"></div>
+    </div>
+
+    <div class="synth-block" id="sy_notes_block" style="display:none">
+      <div class="synth-block-title">Notes</div>
+      <p style="font-size:13px;white-space:pre-wrap" id="sy_notes"></p>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem">
+    <button class="btn" onclick="prev()"><i class="ti ti-arrow-left"></i> Modifier</button>
+    <button class="btn success" onclick="buildProposal()" style="font-size:15px;padding:12px 24px;">
+      <i class="ti ti-file-invoice"></i> Générer la proposition commerciale
+    </button>
+  </div>
+</div>
+
+<!-- PAGE 7 : PROPOSITION COMMERCIALE -->
+<div class="page" id="page6">
+  <div class="print-bar no-print">
+    <button class="btn" onclick="gotoSynth()"><i class="ti ti-arrow-left"></i> Retour à la synthèse</button>
+    <button class="btn outline-red" onclick="resetForm()"><i class="ti ti-refresh"></i> Nouveau prospect</button>
+    <button class="btn primary" onclick="printProposal()"><i class="ti ti-printer"></i> Imprimer / PDF</button>
+  </div>
+  <div id="prop-content"></div>
+  <div class="no-print" style="margin-top:1rem;display:flex;justify-content:flex-start;">
+    <button class="btn" onclick="gotoSynth()"><i class="ti ti-arrow-left"></i> Retour à la synthèse</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+var cur = 0;
+
+function goto(n) {
+  document.getElementById('page' + cur).classList.remove('active');
+  document.getElementById('page' + n).classList.add('active');
+  var pw = document.querySelector('.progress-wrap');
+  if (n === 6) { pw.style.display = 'none'; }
+  else {
+    pw.style.display = '';
+    for (var i = 0; i < 6; i++) {
+      var d = document.getElementById('d' + i);
+      var l = document.getElementById('l' + i);
+      d.className = 'dot' + (i === n ? ' active' : i < n ? ' done' : '');
+      l.className = 'step-lbl' + (i === n ? ' active' : '');
+    }
+  }
+  cur = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function gotoSynth() { goto(5); }
+
+function next() { goto(Math.min(cur + 1, 5)); }
+function prev() { goto(Math.max(cur - 1, 0)); }
+
+function upd(sid, vid) {
+  document.getElementById(vid).textContent = document.getElementById(sid).value + '/5';
+}
+
+function toggleCI(id) {
+  var el = document.getElementById(id);
+  var cb = el.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  el.classList.toggle('on', cb.checked);
+}
+
+function getSatScore() {
+  var ids = ['s_qualite', 's_delai', 's_prix', 's_sav', 's_digital'];
+  var tot = ids.reduce(function(s, id) { return s + parseInt(document.getElementById(id).value); }, 0);
+  return Math.round(tot / ids.length * 10) / 10;
+}
+
+function getEnjeux() {
+  var map = [
+    { id: 'e_cout', label: 'Réduction des coûts' },
+    { id: 'e_livraison', label: 'Fiabilité livraisons' },
+    { id: 'e_admin', label: 'Simplification admin.' },
+    { id: 'e_consolid', label: 'Consolidation fournisseurs' },
+    { id: 'e_digital', label: 'Digitalisation' },
+    { id: 'e_rse', label: 'RSE / Éco-resp.' },
+    { id: 'e_gamme', label: 'Qualité / gamme' },
+    { id: 'e_multisite', label: 'Gestion multi-sites' }
+  ];
+  return map
+    .map(function(m) { return { label: m.label, val: parseInt(document.getElementById(m.id).value) }; })
+    .filter(function(m) { return m.val >= 4; })
+    .sort(function(a, b) { return b.val - a.val; });
+}
+
+function satLabel(v) {
+  if (v >= 4.5) return '<span class="badge badge-green">Très satisfait</span>';
+  if (v >= 3.5) return '<span class="badge badge-blue">Satisfait</span>';
+  if (v >= 2.5) return '<span class="badge badge-amber">Mitigé</span>';
+  return '<span class="badge badge-red">Insatisfait</span>';
+}
+
+function getCats() {
+  var cats = [];
+  var map = ['bureau','papier','epi','hygiene','mobilier','cafet','it','emballage','signa','entretien'];
+  var labels = ['Fournitures de bureau','Papier / Impression','EPI / Sécurité','Hygiène / Nettoyage','Mobilier de bureau','Cafétéria / Restauration','Accessoires IT / Tech','Emballage / Expédition','Signalisation / Affichage','Entretien des locaux'];
+  map.forEach(function(k, i) {
+    if (document.getElementById('cb_' + k) && document.getElementById('cb_' + k).checked) cats.push(labels[i]);
+  });
+  var autres = document.getElementById('f_autres_cats').value.trim();
+  if (autres) cats.push(autres);
+  return cats;
+}
+
+function buildOffres(cats, enjeux) {
+  var offres = [];
+  var catStr = cats.join(' ');
+  var digitalVal = parseInt(document.getElementById('e_digital').value);
+  var multiSiteVal = parseInt(document.getElementById('e_multisite').value);
+  var rseVal = parseInt(document.getElementById('e_rse').value);
+  var consolidVal = parseInt(document.getElementById('e_consolid').value);
+  var coutVal = parseInt(document.getElementById('e_cout').value);
+
+  if (/bureau|papier|impression/i.test(catStr))
+    offres.push({ title: 'Fournitures & papeterie', icon: 'ti-pencil', desc: 'Catalogue Lyreco standard + accord tarifaire personnalisé sur les références clés.', prio: true });
+  if (/EPI|sécu/i.test(catStr))
+    offres.push({ title: 'EPI & sécurité', icon: 'ti-shield', desc: 'Gamme complète EPI conforme EN ISO avec stock tampon dédié et suivi des renouvellements.', prio: true });
+  if (/hygiène|nettoyage/i.test(catStr))
+    offres.push({ title: 'Hygiène & propreté', icon: 'ti-droplet', desc: 'Solutions complètes pour espaces sanitaires et zones de travail.', prio: false });
+  if (/mobilier/i.test(catStr))
+    offres.push({ title: 'Mobilier & aménagement', icon: 'ti-armchair', desc: 'Audit ergonomique + catalogue mobilier sur-mesure avec installation.', prio: false });
+  if (/cafét|restauration/i.test(catStr))
+    offres.push({ title: 'Cafétéria & bien-être', icon: 'ti-coffee', desc: 'Machines à café, consommables et produits alimentaires sur abonnement.', prio: false });
+  if (digitalVal >= 4 || document.getElementById('cb_eprocurement').checked)
+    offres.push({ title: 'Lyreco e-Shop / Punch-out', icon: 'ti-shopping-cart', desc: 'Plateforme digitale avec catalogue filtré, workflow de validation et historique de commandes.', prio: true });
+  if (document.getElementById('cb_reporting').checked || coutVal >= 4)
+    offres.push({ title: 'Tableau de bord & reporting', icon: 'ti-chart-bar', desc: 'Suivi des dépenses par site, par catégorie et par utilisateur — rapports mensuels automatiques.', prio: false });
+  if (multiSiteVal >= 4 || (document.getElementById('f_sites').value && parseInt(document.getElementById('f_sites').value) > 3))
+    offres.push({ title: 'Contrat multi-sites', icon: 'ti-map-pin', desc: 'Un interlocuteur unique, une facturation centralisée, des livraisons coordonnées sur l\'ensemble des établissements.', prio: true });
+  if (consolidVal >= 4)
+    offres.push({ title: 'Accord-cadre global', icon: 'ti-file-certificate', desc: 'Réduction du nombre de fournisseurs grâce à un accord couvrant toutes les catégories Lyreco.', prio: true });
+  if (rseVal >= 3)
+    offres.push({ title: 'Offre Lyreco for Good (RSE)', icon: 'ti-leaf', desc: 'Produits éco-labellisés, emballages réduits, reporting carbone et alternatives durables.', prio: false });
+
+  if (offres.length === 0)
+    offres.push({ title: 'Offre découverte Lyreco', icon: 'ti-gift', desc: 'Audit complet des besoins + proposition tarifaire personnalisée sur les principales familles.', prio: true });
+  return offres;
+}
+
+function buildSynth() {
+  var now = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('synth_date_label').textContent = 'Générée le ' + now;
+
+  var nom = document.getElementById('f_nom').value || 'Non renseigné';
+  var ville = document.getElementById('f_ville').value;
+  document.getElementById('sy_nom').textContent = nom + (ville ? ' — ' + ville : '');
+  document.getElementById('sy_secteur').textContent = document.getElementById('f_secteur').value || '—';
+  var eff = document.getElementById('f_effectif').value;
+  var sites = document.getElementById('f_sites').value;
+  document.getElementById('sy_effectif').textContent = (eff || '—') + ' salariés' + (sites ? ' · ' + sites + ' site(s)' : '');
+  var contact = document.getElementById('f_contact').value;
+  var fonction = document.getElementById('f_fonction').value;
+  var email = document.getElementById('f_email').value;
+  var tel = document.getElementById('f_tel').value;
+  var contactParts = [contact || '—', fonction, email, tel].filter(Boolean);
+  document.getElementById('sy_contact').textContent = contactParts.join(' · ');
+
+  document.getElementById('sy_fourn').textContent = document.getElementById('f_fournisseurs').value || 'Non renseigné';
+  document.getElementById('sy_budget').textContent = document.getElementById('f_budget').value || 'Non renseigné';
+  document.getElementById('sy_contrat').textContent = document.getElementById('f_contrat').value || 'Non renseigné';
+  var sat = getSatScore();
+  document.getElementById('sy_sat').innerHTML = satLabel(sat) + ' <span style="font-size:12px;color:var(--text-muted);margin-left:6px">Score moyen ' + sat + '/5</span>';
+
+  var frustration = document.getElementById('f_frustration').value.trim();
+  if (frustration) {
+    document.getElementById('sy_frustration').textContent = frustration;
+    document.getElementById('sy_frustration_row').style.display = 'flex';
+  }
+
+  var cats = getCats();
+  var catsEl = document.getElementById('sy_cats');
+  catsEl.innerHTML = cats.length
+    ? cats.map(function(c) { return '<span class="badge badge-blue">' + c + '</span>'; }).join('')
+    : '<span style="font-size:13px;color:var(--text-muted)">Aucune catégorie sélectionnée</span>';
+
+  var enjeux = getEnjeux();
+  var enjeuxEl = document.getElementById('sy_enjeux');
+  enjeuxEl.innerHTML = enjeux.length
+    ? enjeux.map(function(e) { return '<span class="badge badge-amber">' + e.label + ' (' + e.val + '/5)</span>'; }).join('')
+    : '<span style="font-size:13px;color:var(--text-muted)">Aucun enjeu critique identifié</span>';
+
+  var offres = buildOffres(cats, enjeux);
+  document.getElementById('sy_offres').innerHTML = offres.map(function(o) {
+    return '<div class="offer-card' + (o.prio ? ' prio' : '') + '">'
+      + '<div class="offer-title"><i class="ti ' + o.icon + '" style="color:' + (o.prio ? 'var(--blue)' : 'var(--text-muted)') + '"></i>'
+      + o.title
+      + (o.prio ? ' <span class="badge badge-blue" style="font-size:10px">Priorité</span>' : '')
+      + '</div><div class="offer-desc">' + o.desc + '</div></div>';
+  }).join('');
+
+  var notes = document.getElementById('f_notes').value.trim();
+  var projet = document.getElementById('f_projet').value.trim();
+  var notesAll = [notes, projet ? 'Projet / échéance : ' + projet : ''].filter(Boolean).join('\n\n');
+  if (notesAll) {
+    document.getElementById('sy_notes').textContent = notesAll;
+    document.getElementById('sy_notes_block').style.display = 'block';
+  }
+
+  goto(5);
+}
+
+function printSynth() {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('print-target'); });
+  document.getElementById('page5').classList.add('print-target');
+  window.print();
+}
+
+function printProposal() {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('print-target'); });
+  document.getElementById('page6').classList.add('print-target');
+  window.print();
+}
+
+function buildProposal() {
+  var nom = document.getElementById('f_nom').value || 'Prospect';
+  var ville = document.getElementById('f_ville').value;
+  var secteur = document.getElementById('f_secteur').value || '—';
+  var effectif = document.getElementById('f_effectif').value || '—';
+  var sites = document.getElementById('f_sites').value || '1';
+  var nbSites = parseInt(sites) || 1;
+  var contact = document.getElementById('f_contact').value || '—';
+  var fonction = document.getElementById('f_fonction').value || '';
+  var email = document.getElementById('f_email').value || '';
+  var fournisseurs = document.getElementById('f_fournisseurs').value || 'Non renseigné';
+  var nbFourn = fournisseurs.split(',').filter(function(s){ return s.trim(); }).length;
+  var budget = document.getElementById('f_budget').value || 'Non renseigné';
+  var contrat = document.getElementById('f_contrat').value || 'Non renseigné';
+  var centralisation = document.getElementById('f_centralisation').value || '';
+  var outil = document.getElementById('f_outil').value || '';
+  var frustration = document.getElementById('f_frustration').value.trim();
+  var projet = document.getElementById('f_projet').value.trim();
+  var notes = document.getElementById('f_notes').value.trim();
+  var sat = getSatScore();
+  var cats = getCats();
+  var catStr = cats.join(' ');
+  var enjeux = getEnjeux();
+  var offres = buildOffres(cats, enjeux);
+  var now = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  var eDigital = parseInt(document.getElementById('e_digital').value);
+  var eMultisite = parseInt(document.getElementById('e_multisite').value);
+  var eRse = parseInt(document.getElementById('e_rse').value);
+  var eConsolid = parseInt(document.getElementById('e_consolid').value);
+  var eCout = parseInt(document.getElementById('e_cout').value);
+  var eAdmin = parseInt(document.getElementById('e_admin').value);
+  var wantEprocurement = document.getElementById('cb_eprocurement').checked;
+  var wantReporting = document.getElementById('cb_reporting').checked;
+  var wantMultisite = document.getElementById('cb_multisite').checked;
+  var wantRse = document.getElementById('cb_csr').checked;
+
+  /* ---- RISQUES ---- */
+  var risques = [];
+  if (nbFourn > 1)
+    risques.push({ icon: 'ti-alert-triangle', color: '#BA7517', text: '<strong>' + nbFourn + ' fournisseurs actifs</strong> (' + fournisseurs + ') sans mutualisation ni accord cadre commun.', badge: 'Risque', bc: 'badge-amber' });
+  if (nbSites > 2)
+    risques.push({ icon: 'ti-map-pin', color: '#BA7517', text: '<strong>' + nbSites + ' sites</strong> sans coordination d\'approvisionnement, entraînant des commandes dispersées et des coûts logistiques non maîtrisés.', badge: 'Risque', bc: 'badge-amber' });
+  if (sat < 3.5)
+    risques.push({ icon: 'ti-trending-down', color: '#BA7517', text: '<strong>Satisfaction globale mitigée</strong> (' + sat + '/5) sur la qualité, les délais, les prix et les outils digitaux actuels.', badge: 'Risque', bc: 'badge-amber' });
+  if (contrat.match(/pas de contrat/i))
+    risques.push({ icon: 'ti-file-off', color: '#BA7517', text: '<strong>Aucun contrat cadre</strong> en place — aucune condition tarifaire garantie, aucun engagement fournisseur.', badge: 'Risque', bc: 'badge-amber' });
+  if (frustration)
+    risques.push({ icon: 'ti-message-circle', color: '#185FA5', text: '<strong>Verbatim client :</strong> « ' + frustration + ' »', badge: 'Terrain', bc: 'badge-blue' });
+  enjeux.forEach(function(e) {
+    risques.push({ icon: 'ti-target', color: '#185FA5', text: 'Objectif prioritaire : <strong>' + e.label + '</strong> (' + e.val + '/5)', badge: 'Priorité', bc: 'badge-blue' });
+  });
+  if (!risques.length)
+    risques.push({ icon: 'ti-info-circle', color: '#185FA5', text: 'Prospect à fort potentiel — audit complet en cours.', badge: 'Info', bc: 'badge-blue' });
+
+  /* ---- COMPARATIF ---- */
+  var compRows = [
+    [nbFourn > 1 ? nbFourn + ' fournisseurs, ' + nbFourn + ' relations à gérer' : 'Fournisseur(s) actuel(s) : ' + fournisseurs, '1 interlocuteur unique dédié Lyreco'],
+    [contrat.match(/pas de contrat/i) ? 'Aucun contrat cadre en place' : 'Contrat en cours (' + contrat + ')', 'Accord-cadre avec tarifs fixes et conditions garanties'],
+    [nbSites > 1 ? 'Approvisionnement non coordonné sur ' + nbSites + ' sites' : 'Commandes sans suivi centralisé', nbSites > 1 ? 'Contrat multi-sites, livraisons J+1 coordonnées' : 'Livraison J+1 garantie, suivi commande en ligne'],
+    ['Aucune visibilité sur les dépenses globales', 'Reporting mensuel par site & catégorie'],
+    [outil ? 'Outil actuel : ' + outil : 'Commandes par email / téléphone', 'Plateforme e-Shop avec workflow de validation intégré'],
+  ];
+  if (wantRse || eRse >= 3) compRows.push(['Pas de démarche RSE structurée sur les achats', 'Catalogue éco-labellisé + reporting carbone annuel']);
+
+  /* ---- OFFRES DÉTAILLÉES ---- */
+  var offresDetail = [];
+  var prio = 1;
+  offres.forEach(function(o) {
+    var detail = '';
+    var tags = [];
+    var catClass = o.prio ? 'hi' : '';
+    if (o.title === 'Fournitures & papeterie') {
+      detail = 'Catalogue ' + nom + ' avec les 150 à 300 articles les plus consommés. Tarifs négociés sur les volumes consolidés' + (nbSites > 1 ? ' des ' + nbSites + ' sites' : '') + '. Réassort automatique sur les consommables papier.';
+      tags = ['Catalogue personnalisé', 'Tarif volume', 'Livraison J+1'];
+    } else if (o.title === 'EPI & sécurité') {
+      detail = 'Gamme complète d\'équipements de protection individuelle conformes EN ISO. Stock tampon dédié ' + nom + ' sur les EPI critiques (gants, chaussures, casques). Suivi des dates de renouvellement obligatoires.';
+      tags = ['Conformité réglementaire', 'Stock tampon', 'Traçabilité'];
+    } else if (o.title === 'Hygiène & propreté') {
+      detail = 'Solutions complètes pour espaces sanitaires et zones de travail : savons, désinfectants, essuie-mains, sacs poubelle. Livraisons groupées avec les fournitures de bureau.';
+      tags = ['Livraison groupée', '1 facture'];
+    } else if (o.title === 'Mobilier & aménagement') {
+      detail = 'Audit ergonomique des postes de travail inclus à la mise en place. Catalogue mobilier sur-mesure avec installation sur site.';
+      tags = ['Audit ergonomique', 'Installation incluse'];
+    } else if (o.title === 'Cafétéria & bien-être') {
+      detail = 'Machines à café, capsules, sucre, gobelets et produits alimentaires sur abonnement. Maintenance des équipements incluse.';
+      tags = ['Abonnement', 'Maintenance incluse'];
+    } else if (o.title === 'Lyreco e-Shop / Punch-out') {
+      detail = 'Plateforme digitale avec catalogue filtré aux références validées ' + nom + ', workflow de validation à 2 niveaux, historique et suivi livraisons en temps réel.';
+      tags = ['25 accès utilisateurs', 'Workflow validation', 'Mobile'];
+    } else if (o.title === 'Tableau de bord & reporting') {
+      detail = 'Suivi des dépenses par site, par catégorie et par utilisateur. Rapports mensuels automatiques au format PDF et CSV. Export comptable disponible.';
+      tags = ['Mensuel automatique', 'Export CSV/PDF'];
+    } else if (o.title === 'Contrat multi-sites') {
+      detail = 'Un interlocuteur unique, une facturation centralisée mensuelle, des livraisons coordonnées sur l\'ensemble des ' + nbSites + ' établissements. Aucun minimum de commande par site.';
+      tags = ['Facturation centralisée', 'Livraison J+1/site', 'Sans minimum'];
+    } else if (o.title === 'Accord-cadre global') {
+      detail = 'Réduction de ' + (nbFourn > 1 ? nbFourn + ' fournisseurs à 1' : 'votre portefeuille fournisseurs') + ' grâce à un accord couvrant toutes les catégories Lyreco. Tarifs fixes sur 2 ans, révision annuelle plafonnée.';
+      tags = ['Tarifs fixes 2 ans', 'Toutes catégories'];
+    } else if (o.title === 'Offre Lyreco for Good (RSE)') {
+      detail = 'Produits éco-labellisés (EU Ecolabel, NF Environnement) identifiés dans le catalogue. Emballages optimisés, réduction des tournées. Rapport carbone annuel scope 3 fourni.';
+      tags = ['EU Ecolabel', 'Rapport carbone', 'Emballages réduits'];
+    } else {
+      detail = o.desc;
+    }
+    offresDetail.push({ title: o.title, icon: o.icon, prio: o.prio, detail: detail, tags: tags, cls: catClass, num: o.prio ? prio++ : 0 });
+  });
+
+  /* ---- PLAN DÉPLOIEMENT ---- */
+  var pilotSites = Math.min(3, Math.max(1, Math.floor(nbSites / 5)));
+  var phases = [
+    {
+      num: 1, green: false,
+      name: 'Cadrage & référencement',
+      timing: 'Semaine 1 – 2 · Pilotage : ' + (contact !== '—' ? contact : 'Responsable Achat') + ' + commercial Lyreco',
+      badge: 'Démarrage',
+      tasks: [
+        { txt: 'Recueil de la liste des ' + nbSites + ' sites avec adresses de livraison et contacts responsables', tag: 'Admin', g: false },
+        { txt: 'Identification des 100 à 150 références prioritaires par catégorie avec les volumes annuels estimés', tag: 'Catalogue', g: false },
+        { txt: 'Validation de la grille tarifaire personnalisée ' + nom + ' sur les références clés', tag: 'Tarifaire', g: false },
+        { txt: 'Définition des règles de validation : qui commande sur chaque site, quel plafond sans validation centrale', tag: 'Workflow', g: false },
+      ]
+    },
+    {
+      num: 2, green: false,
+      name: 'Paramétrage e-Shop',
+      timing: 'Semaine 3 – 4 · Pilotage : équipe technique Lyreco',
+      badge: 'Digital',
+      tasks: [
+        { txt: 'Création des ' + nbSites + ' comptes utilisateurs avec droits et plafonds personnalisés par site', tag: 'Paramétrage', g: false },
+        { txt: 'Chargement du catalogue filtré ' + nom + ' — uniquement les références validées avec tarifs négociés affichés', tag: 'Catalogue', g: false },
+        { txt: 'Paramétrage du workflow de validation et des alertes automatiques' + (contact !== '—' ? ' vers ' + contact : ''), tag: 'Workflow', g: false },
+        { txt: 'Configuration du reporting mensuel : dépenses par site, par catégorie, comparatif mois précédent', tag: 'Reporting', g: false },
+        { txt: 'Recette et validation de la plateforme' + (contact !== '—' ? ' avec ' + contact : '') + ' avant ouverture aux sites', tag: 'Validation', g: false },
+      ]
+    },
+    {
+      num: 3, green: false,
+      name: 'Formation & commandes test',
+      timing: 'Semaine 5 – 6 · ' + pilotSites + ' site(s) pilote(s)',
+      badge: 'Lancement',
+      tasks: [
+        { txt: 'Formation' + (contact !== '—' ? ' de ' + contact : '') + ' (vue administrateur, reporting, gestion des accès) — 1h en visio', tag: 'Formation', g: false },
+        { txt: 'Formation des responsables de site : tutoriel vidéo + guide PDF — prise en main en 20 minutes', tag: 'Formation', g: false },
+        { txt: 'Commandes test sur ' + pilotSites + ' site(s) pilote(s) : passage de commande, suivi livraison, conformité produits', tag: 'Test terrain', g: false, a: true },
+        { txt: 'Vérification des délais de livraison J+1 réels sur les sites pilotes avant déploiement général', tag: 'Contrôle', g: false, a: true },
+        { txt: 'Debriefing : ajustements catalogue, droits utilisateurs, seuils de validation si nécessaire', tag: 'Ajustements', g: false },
+      ]
+    },
+    {
+      num: 4, green: false,
+      name: 'Déploiement général — ' + nbSites + ' sites',
+      timing: 'Mois 2 – 3',
+      badge: 'Déploiement',
+      tasks: [
+        { txt: 'Ouverture progressive des accès à l\'ensemble des sites (par vagues de ' + Math.ceil(nbSites / 3) + ' sites)', tag: 'Déploiement', g: false },
+        { txt: 'Activation des catégories complémentaires : hygiène, cafétéria, emballage', tag: 'Catalogue', g: false },
+        { txt: 'Suivi hebdomadaire des premières commandes : taux d\'adoption par site, anomalies de livraison', tag: 'Suivi', g: false },
+        { txt: 'Support Lyreco dédié pendant 4 semaines (ligne directe gestionnaire de compte)', tag: 'Support', g: false },
+      ]
+    },
+    {
+      num: 5, green: true,
+      name: 'Mesure de satisfaction & optimisation continue',
+      timing: 'Mois 3, 6, 12 — Récurrent',
+      badge: 'Pilotage',
+      tasks: [
+        { txt: 'Enquête de satisfaction à 3 mois : qualité produits, délais, prise en main e-Shop — envoyée aux responsables de site', tag: 'Satisfaction', g: true },
+        { txt: 'Bilan semestriel : analyse des dépenses réelles vs estimées, économies réalisées, sites sous-utilisateurs', tag: 'Bilan', g: true },
+        { txt: 'Revue catalogue annuelle : ajout de nouvelles références, suppression des articles non commandés, mise à jour tarifaire', tag: 'Optimisation', g: true },
+        { txt: 'Propositions d\'optimisation proactives (nouvelles catégories, alternatives moins chères, produits RSE)', tag: 'Conseil', g: true },
+      ],
+      kpis: ['NPS · Satisfaction globale', 'Taux adoption e-Shop', 'Économies € réalisées']
+    },
+  ];
+
+  /* ---- GÉNÉRATION HTML ---- */
+  var h = '';
+
+  /* COUVERTURE */
+  h += '<div class="prop-cover">';
+  h += '<div class="prop-logo"><i class="ti ti-building-store"></i> LYRECO</div>';
+  h += '<div class="prop-title">Proposition commerciale</div>';
+  h += '<div class="prop-sub">Optimisation de vos achats indirects — Offre globale multi-catégories</div>';
+  h += '<div class="prop-meta-grid">';
+  h += '<div class="prop-meta-box"><div class="prop-meta-label">Destinataire</div><div class="prop-meta-val">' + nom + (ville ? ' — ' + ville : '') + '</div><div class="prop-meta-sub">' + contact + (fonction ? ' · ' + fonction : '') + '</div></div>';
+  h += '<div class="prop-meta-box"><div class="prop-meta-label">Date</div><div class="prop-meta-val">' + now + '</div><div class="prop-meta-sub">Valable 30 jours</div></div>';
+  h += '<div class="prop-meta-box"><div class="prop-meta-label">Périmètre</div><div class="prop-meta-val">' + effectif + ' salariés · ' + nbSites + ' site(s)</div><div class="prop-meta-sub">' + secteur + '</div></div>';
+  h += '<div class="prop-meta-box"><div class="prop-meta-label">Type de partenariat</div><div class="prop-meta-val">Accord-cadre global</div><div class="prop-meta-sub">Multi-sites · Multi-catégories</div></div>';
+  h += '</div></div>';
+
+  /* 1. CONTEXTE */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">1</div><div class="psec-title">Contexte et enjeux identifiés</div></div>';
+  h += '<p style="font-size:14px;margin-bottom:0.75rem">Suite à notre rendez-vous du ' + now + ', nous avons retenu les points structurants suivants :</p>';
+  risques.forEach(function(r) {
+    h += '<div class="risk-row"><i class="ti ' + r.icon + ' risk-icon" style="color:' + r.color + '"></i><span style="flex:1" >' + r.text + '</span><span class="badge ' + r.bc + '">' + r.badge + '</span></div>';
+  });
+  h += '</div>';
+
+  /* 2. COMPARATIF */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">2</div><div class="psec-title">Situation actuelle vs solution Lyreco</div></div>';
+  h += '<table class="comp-table"><thead><tr><th style="width:44%">Aujourd\'hui</th><th style="width:8%;text-align:center"></th><th>Avec Lyreco</th></tr></thead><tbody>';
+  compRows.forEach(function(r) {
+    h += '<tr><td>' + r[0] + '</td><td class="comp-arrow">→</td><td class="comp-after">' + r[1] + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+
+  /* 3. PÉRIMÈTRE OFFRE */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">3</div><div class="psec-title">Périmètre de l\'offre proposée</div></div>';
+  var prioNum = 1;
+  offresDetail.forEach(function(o) {
+    h += '<div class="pcard ' + o.cls + '">';
+    h += '<div class="pcard-title">';
+    h += '<i class="ti ' + o.icon + '" style="color:' + (o.prio ? 'var(--blue)' : 'var(--text-muted)') + '"></i>';
+    h += o.title;
+    if (o.prio) h += ' <span class="badge badge-blue" style="font-size:10px">Priorité ' + prioNum++ + '</span>';
+    h += '</div>';
+    h += '<div class="pcard-body">' + o.detail + '</div>';
+    if (o.tags.length) {
+      h += '<div class="pcard-tags">' + o.tags.map(function(t){ return '<span class="badge badge-blue" style="font-size:10px">' + t + '</span>'; }).join('') + '</div>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+
+  /* 4. SOLUTION DIGITALE (si pertinent) */
+  if (eDigital >= 3 || wantEprocurement || wantReporting) {
+    h += '<div class="card psec">';
+    h += '<div class="psec-header"><div class="psec-num">4</div><div class="psec-title">Solution digitale — Lyreco e-Shop</div></div>';
+    h += '<table class="eshop-table"><thead><tr><th>Fonctionnalité</th><th style="text-align:center;width:80px">Inclus</th></tr></thead><tbody>';
+    var features = [
+      'Catalogue filtré aux références validées ' + nom,
+      'Profils utilisateurs par site (' + nbSites + ' accès distincts)',
+      'Workflow de validation à 2 niveaux (responsable site + achat central)',
+      'Historique de commandes et suivi livraisons en temps réel',
+      'Reporting mensuel automatique (par site, par catégorie)',
+      'Export comptable (PDF, CSV, EDI sur demande)',
+      'Application mobile pour les responsables de site',
+      'Formation en ligne + accompagnement au démarrage',
+    ];
+    features.forEach(function(f) {
+      h += '<tr><td>' + f + '</td><td style="text-align:center" class="chk">✓</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+
+  /* 5. GAINS */
+  var secNum = (eDigital >= 3 || wantEprocurement || wantReporting) ? 5 : 4;
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">' + secNum++ + '</div><div class="psec-title">Gains attendus</div></div>';
+  h += '<div class="kpi-grid">';
+  h += '<div class="kpi-box"><div class="kpi-lbl">Économies tarifaires estimées</div><div class="kpi-val">8 – 15%</div><div class="kpi-sub">sur les achats consolidés vs situation actuelle</div></div>';
+  h += '<div class="kpi-box"><div class="kpi-lbl">Réduction nombre de fournisseurs</div><div class="kpi-val">' + (nbFourn > 1 ? nbFourn + ' → 1' : '→ 1') + '</div><div class="kpi-sub">un seul contrat, une seule relation</div></div>';
+  h += '<div class="kpi-box g"><div class="kpi-lbl">Temps administratif économisé</div><div class="kpi-val">~2h / site</div><div class="kpi-sub">par mois grâce à la digitalisation</div></div>';
+  h += '<div class="kpi-box g"><div class="kpi-lbl">Délai de livraison garanti</div><div class="kpi-val">J+1</div><div class="kpi-sub">sur tous les sites France métropolitaine</div></div>';
+  h += '</div>';
+  if (wantRse || eRse >= 3) {
+    h += '<div class="pcard hi2"><div class="pcard-title" style="color:var(--green)"><i class="ti ti-leaf"></i> Engagement RSE — Lyreco for Good</div>';
+    h += '<div class="pcard-body">Produits éco-labellisés (EU Ecolabel, NF Environnement) identifiés dans le catalogue · Emballages optimisés et réduction des tournées (–CO₂) · Rapport carbone annuel fourni (scope 3 achats indirects) · Gamme produits reconditionnés disponible sur demande.</div></div>';
+  }
+  h += '</div>';
+
+  /* 6. CONDITIONS */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">' + secNum++ + '</div><div class="psec-title">Conditions commerciales</div></div>';
+  h += '<table class="eshop-table"><tbody>';
+  var conds = [
+    ['Type de partenariat', 'Accord-cadre multi-sites, multi-catégories'],
+    ['Durée proposée', '2 ans (renouvelable par tacite reconduction)'],
+    ['Révision tarifaire', 'Annuelle, indexée sur l\'IPC — plafonnée à +2%'],
+    ['Délai de livraison standard', 'J+1 ouvré sur tous les sites référencés'],
+    ['Minimum de commande', 'Aucun minimum par site'],
+    ['Conditions de paiement', '30 jours fin de mois — facture mensuelle centralisée'],
+    ['Avoir / retour produit', 'Sous 30 jours, enlèvement gratuit'],
+    ['Interlocuteur dédié', '1 commercial référent + 1 gestionnaire de compte'],
+    ['Revue de partenariat', 'Bilan semestriel (volumes, satisfaction, optimisations)'],
+  ];
+  conds.forEach(function(c) {
+    h += '<tr><td style="font-weight:600;width:45%">' + c[0] + '</td><td>' + c[1] + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+
+  /* 7. PLAN DE DÉPLOIEMENT */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">' + secNum++ + '</div><div class="psec-title">Plan de déploiement</div></div>';
+  phases.forEach(function(ph) {
+    h += '<div class="phase-wrap"><div class="phase-hd">';
+    h += '<div class="phase-num' + (ph.green ? ' g' : '') + '">' + ph.num + '</div>';
+    h += '<div class="phase-info"><div class="phase-name">' + ph.name + '</div><div class="phase-timing">' + ph.timing + '</div></div>';
+    h += '<span class="badge ' + (ph.green ? 'badge-green' : 'badge-blue') + '">' + ph.badge + '</span>';
+    h += '</div><div class="phase-body">';
+    ph.tasks.forEach(function(t) {
+      h += '<div class="task"><div class="task-dot' + (t.g ? ' g' : '') + '"></div><div class="task-txt">' + t.txt + '</div><span class="task-tag' + (t.g ? ' g' : t.a ? ' a' : '') + '">' + t.tag + '</span></div>';
+    });
+    if (ph.kpis) {
+      h += '<div class="kpi-mini">';
+      ph.kpis.forEach(function(k) {
+        var parts = k.split(' · ');
+        h += '<div class="kpi-mini-box"><div class="kpi-mini-val">' + parts[0] + '</div><div class="kpi-mini-lbl">' + (parts[1] || '') + '</div></div>';
+      });
+      h += '</div>';
+    }
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  /* 8. PROCHAINES ÉTAPES */
+  h += '<div class="card psec">';
+  h += '<div class="psec-header"><div class="psec-num">' + secNum++ + '</div><div class="psec-title">Prochaines étapes</div></div>';
+  var steps = [
+    { n: 1, g: false, title: 'Validation de la proposition par ' + (contact !== '—' ? contact : 'votre équipe'), sub: 'Retour attendu sous 10 jours — questions ou ajustements bienvenus' },
+    { n: 2, g: false, title: 'Présentation à la direction si nécessaire', sub: 'Version exécutive 2 pages disponible sur demande' },
+    { n: 3, g: false, title: 'Transmission des volumes annuels estimés', sub: 'Nécessaire pour finaliser la grille tarifaire sur les catégories prioritaires' },
+    { n: 4, g: true, title: 'Lancement du cadrage & démarrage phase 1', sub: 'Objectif : 1ère commande test dans les 30 jours suivant l\'accord' },
+  ];
+  if (projet) steps.splice(3, 0, { n: 3.5, g: false, title: 'Projet / échéance identifiée : ' + projet, sub: 'À prendre en compte dans le calendrier de déploiement' });
+  steps.forEach(function(s, idx) {
+    h += '<div class="next-row"><div class="next-num' + (s.g ? ' g' : '') + '">' + (idx + 1) + '</div><div><div class="next-title">' + s.title + '</div><div class="next-sub">' + s.sub + '</div></div></div>';
+  });
+  h += '</div>';
+
+  /* FOOTER */
+  h += '<div class="prop-footer">LYRECO France — Proposition confidentielle établie pour ' + nom + ' · Valable 30 jours à compter du ' + now + '</div>';
+
+  document.getElementById('prop-content').innerHTML = h;
+  goto(6);
+}
+
+function resetForm() {
+  if (!confirm('Réinitialiser le formulaire pour un nouveau prospect ?')) return;
+  document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=number], textarea').forEach(function(el) { el.value = ''; });
+  document.querySelectorAll('select').forEach(function(el) { el.selectedIndex = 0; });
+  document.querySelectorAll('input[type=range]').forEach(function(el) {
+    el.value = el.id === 'e_rse' ? 2 : 3;
+    var vid = el.id.replace(/^(s_|e_)/, function(m, p) { return p === 's_' ? 'sv_' : 'ev_'; });
+    var out = document.getElementById(vid);
+    if (out) out.textContent = el.value + '/5';
+  });
+  document.querySelectorAll('.check-item').forEach(function(el) {
+    el.classList.remove('on');
+    var cb = el.querySelector('input[type=checkbox]');
+    if (cb) cb.checked = false;
+  });
+  document.getElementById('sy_frustration_row').style.display = 'none';
+  document.getElementById('sy_notes_block').style.display = 'none';
+  document.getElementById('header-company').textContent = '';
+  goto(0);
+}
+</script>
+</body>
+</html>
