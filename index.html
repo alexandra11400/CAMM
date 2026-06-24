@@ -1,1 +1,487 @@
-/Users/alex/Documents/lyreco-decouverte-client.html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fiche prospection Lyreco MidMarket</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+  --green: #3B6D11; --green-light: #EAF3DE;
+  --amber: #854F0B; --amber-light: #FAEEDA;
+  --border: #d4d2cc; --bg: #f8f7f4; --white: #ffffff;
+  --text: #1a1a1a; --text-muted: #6b6a66; --text-faint: #9b9a96;
+  --radius: 10px; --radius-sm: 6px;
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; background: var(--bg); color: var(--text); line-height: 1.5; }
+
+.layout { display: grid; grid-template-columns: 1fr 380px; min-height: 100vh; }
+
+/* ---- LEFT PANEL (form) ---- */
+.form-panel { padding: 2rem 1.5rem; overflow-y: auto; border-right: 1px solid var(--border); }
+
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.75rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.logo-badge { background: var(--blue); color: #fff; font-weight: 700; font-size: 12px; padding: 5px 12px; border-radius: var(--radius-sm); }
+.header h1 { font-size: 17px; font-weight: 700; }
+.header p { font-size: 12px; color: var(--text-muted); }
+
+.section { margin-bottom: 1.5rem; }
+.section-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.section-title i { font-size: 13px; color: var(--blue); }
+
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.field input, .field textarea, .field select {
+  width: 100%; padding: 7px 10px; font-size: 13px; font-family: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--white); color: var(--text); transition: border 0.15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+.field textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+.signal-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.signal-toggle { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-muted); transition: all 0.15s; user-select: none; }
+.signal-toggle.on { background: var(--blue-light); color: var(--blue-dark); border-color: #b5d4f4; }
+.signal-toggle i { font-size: 11px; }
+
+.stat-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-input-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.stat-input-card.blue { border-left: 3px solid var(--blue); }
+.stat-input-card.green { border-left: 3px solid var(--green); }
+.stat-input-card label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px; display: block; }
+.stat-input-card input { border: none; font-size: 26px; font-weight: 700; width: 100%; padding: 0; background: transparent; color: var(--text); }
+.stat-input-card input:focus { outline: none; }
+.stat-input-card .hint { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+/* ---- RIGHT PANEL (preview) ---- */
+.preview-panel { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #1e1e2e; color: #cdd6f4; padding: 1.5rem; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.9; }
+
+.preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid #313244; }
+.preview-header span { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; font-weight: 600; color: #89b4fa; text-transform: uppercase; letter-spacing: 0.06em; }
+.preview-tabs { display: flex; gap: 6px; }
+.tab { font-family: -apple-system, sans-serif; font-size: 11px; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid #313244; color: #6c7086; background: transparent; font-weight: 600; }
+.tab.active { background: #313244; color: #cdd6f4; border-color: #45475a; }
+
+.preview-section { margin-bottom: 1rem; }
+.preview-sep { border: none; border-top: 1px solid #313244; margin: 0.75rem 0; }
+.key { color: #89b4fa; }
+.val { color: #a6e3a1; }
+.val.empty { color: #45475a; font-style: italic; }
+.val.highlight { color: #f9e2af; }
+.section-head { color: #cba6f7; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.signal-list { color: #94e2d5; }
+
+.copy-bar { display: flex; gap: 8px; margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid #313244; }
+.copy-action { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: var(--radius-sm); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #313244; background: #313244; color: #cdd6f4; transition: background 0.15s; }
+.copy-action:hover { background: #45475a; }
+
+/* Analyse AI */
+.analyze-bar { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.analyze-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 40px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; border: none; background: var(--blue); color: #fff; transition: opacity 0.15s; }
+.analyze-btn:hover { opacity: 0.88; }
+.clear-btn { width: 40px; height: 40px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); color: var(--text-muted); cursor: pointer; font-size: 14px; transition: background 0.15s; }
+.clear-btn:hover { background: var(--bg); }
+
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #a6e3a1; color: #1e2e1e; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast.show { opacity: 1; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .preview-panel { position: static; height: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===== FORM PANEL ===== -->
+  <div class="form-panel">
+
+    <div class="header">
+      <div class="logo-badge"><i class="fa-solid fa-store"></i> Lyreco</div>
+      <div>
+        <h1>Fiche prospection MidMarket</h1>
+        <p>Remplis les champs – la fiche LEADER se met à jour en temps réel</p>
+      </div>
+    </div>
+
+    <!-- ANALYSE IA -->
+    <div class="analyze-bar">
+      <button class="analyze-btn" onclick="launchAnalysis()">
+        <i class="fa-solid fa-magnifying-glass-chart"></i> Analyser une entreprise avec Claude ↗
+      </button>
+      <button class="clear-btn" title="Réinitialiser" onclick="clearAll()"><i class="fa-solid fa-rotate-left"></i></button>
+    </div>
+    <div class="field" style="margin-top:-0.75rem; margin-bottom:1.5rem;">
+      <input id="company-search" type="text" placeholder="Nom de l'entreprise à analyser (ex : DARVA Niort)…" />
+    </div>
+
+    <!-- 1. SOCIÉTÉ -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-building"></i> 1 · Informations société</div>
+      <div class="field"><label>Nom exact</label><input id="f-nom" type="text" placeholder="Raison sociale complète" oninput="update()" /></div>
+      <div class="field"><label>Adresse siège</label><input id="f-adresse" type="text" placeholder="N° rue, code postal, ville" oninput="update()" /></div>
+      <div class="two-col">
+        <div class="field"><label>SIRET siège</label><input id="f-siret" type="text" placeholder="000 000 000 00000" oninput="update()" /></div>
+        <div class="field"><label>Code NAF</label><input id="f-naf" type="text" placeholder="Ex : 6311Z" oninput="update()" /></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Secteur d'activité</label><input id="f-secteur" type="text" placeholder="Ex : Assurance, Industrie…" oninput="update()" /></div>
+        <div class="field"><label>Groupe / holding</label><input id="f-groupe" type="text" placeholder="Ex : Covéa, indépendant…" oninput="update()" /></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Effectif France</label><input id="f-effectif" type="text" placeholder="Ex : ~200" oninput="update()" /></div>
+        <div class="field"><label>CA (indicatif)</label><input id="f-ca" type="text" placeholder="Ex : 45 M€" oninput="update()" /></div>
+      </div>
+    </div>
+
+    <!-- 2. COLS -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-users"></i> 2 · Répartition utilisateurs</div>
+      <div class="stat-inputs">
+        <div class="stat-input-card blue">
+          <label><i class="fa-solid fa-hard-hat"></i> Cols bleus</label>
+          <input id="f-bleus" type="number" min="0" placeholder="0" oninput="update()" />
+          <div class="hint">EPI · hygiène · industrie · logistique</div>
+        </div>
+        <div class="stat-input-card green">
+          <label><i class="fa-solid fa-briefcase"></i> Cols blancs</label>
+          <input id="f-blancs" type="number" min="0" placeholder="0" oninput="update()" />
+          <div class="hint">Bureaux · siège · fonctions support</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px;"><label>Commentaire</label><textarea id="f-repartition-note" placeholder="Ex : 3 sites de production + siège administratif…" rows="2" oninput="update()"></textarea></div>
+    </div>
+
+    <!-- 3. CONTACTS -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-address-book"></i> 3 · Contacts</div>
+      <div class="two-col">
+        <div class="field"><label>Contact principal</label><input id="f-contact" type="text" placeholder="Prénom Nom" oninput="update()" /></div>
+        <div class="field"><label>Fonction</label><input id="f-fonction" type="text" placeholder="Ex : Dir. Achats" oninput="update()" /></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Téléphone</label><input id="f-tel" type="tel" placeholder="01 XX XX XX XX" oninput="update()" /></div>
+        <div class="field"><label>Email</label><input id="f-mail" type="email" placeholder="prenom.nom@domaine.fr" oninput="update()" /></div>
+      </div>
+      <div class="field"><label>LinkedIn / ancienneté</label><input id="f-linkedin" type="text" placeholder="linkedin.com/in/… · depuis 20XX" oninput="update()" /></div>
+      <div class="field"><label>Autres contacts (DAF, Office Manager…)</label><textarea id="f-contacts2" rows="2" placeholder="Prénom Nom – Fonction – Tél/Mail" oninput="update()"></textarea></div>
+    </div>
+
+    <!-- 4. SIGNAUX -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-satellite-dish"></i> 4 · Signaux business</div>
+      <div class="signal-group" id="signal-group">
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Croissance"><i class="fa-solid fa-chart-line"></i> Croissance</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Nouveaux sites"><i class="fa-solid fa-map-pin"></i> Nouveaux sites</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Investissements"><i class="fa-solid fa-coins"></i> Investissements</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Transformation logistique"><i class="fa-solid fa-truck"></i> Logistique</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Déménagement"><i class="fa-solid fa-building-circle-arrow-right"></i> Déménagement</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="RSE"><i class="fa-solid fa-leaf"></i> RSE</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Fusion-acquisition"><i class="fa-solid fa-code-merge"></i> M&A</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Digital achats"><i class="fa-solid fa-laptop-code"></i> Digital achats</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Multisites"><i class="fa-solid fa-building-columns"></i> Multisites</div>
+        <div class="signal-toggle" onclick="toggleSignal(this)" data-val="Recrutement actif"><i class="fa-solid fa-user-plus"></i> Recrutement</div>
+      </div>
+      <div class="field" style="margin-top:10px;"><label>Détail / source</label><textarea id="f-signaux" rows="2" placeholder="Ex : ouverture d'un 4e entrepôt Q1 2026 (source : presse)…" oninput="update()"></textarea></div>
+    </div>
+
+    <!-- 5. TARIF -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-tag"></i> 5 · LEADER</div>
+      <div class="two-col">
+        <div class="field"><label>Tarif</label><input id="f-tarif" type="text" placeholder="Ex : T2 / Grille MidMarket" oninput="update()" /></div>
+        <div class="field"><label>Code vendeur</label><input id="f-vendeur" type="text" placeholder="Code + Nom" oninput="update()" /></div>
+      </div>
+    </div>
+
+    <!-- 7. ANGLE -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-bullseye"></i> 7 · Angle commercial</div>
+      <div class="field"><label>Angle d'attaque</label><textarea id="f-angle" rows="2" placeholder="Ex : Approcher via RSE – gammes éco Lyreco…" oninput="update()"></textarea></div>
+      <div class="field"><label>Objet mail 1</label><input id="f-obj1" type="text" placeholder="…" oninput="update()" /></div>
+      <div class="field"><label>Objet mail 2</label><input id="f-obj2" type="text" placeholder="…" oninput="update()" /></div>
+      <div class="field"><label>Objet mail 3</label><input id="f-obj3" type="text" placeholder="…" oninput="update()" /></div>
+      <div class="field"><label>Accroche InMail LinkedIn</label><textarea id="f-inmail" rows="4" placeholder="Bonjour [Prénom],&#10;&#10;Je travaille avec plusieurs [secteur]…" oninput="update()"></textarea></div>
+    </div>
+
+  </div>
+
+  <!-- ===== PREVIEW PANEL ===== -->
+  <div class="preview-panel">
+
+    <div class="preview-header">
+      <span><i class="fa-solid fa-file-lines"></i> &nbsp;Aperçu live</span>
+      <div class="preview-tabs">
+        <button class="tab active" onclick="switchTab('leader', this)">Fiche LEADER</button>
+        <button class="tab" onclick="switchTab('mail', this)">Mail interne</button>
+        <button class="tab" onclick="switchTab('angle', this)">Angle</button>
+      </div>
+    </div>
+
+    <!-- LEADER TAB -->
+    <div id="tab-leader">
+      <div class="section-head">// fiche LEADER</div>
+      <div id="p-nom"><span class="key">Nom :</span> <span class="val empty" id="pv-nom">—</span></div>
+      <div id="p-adresse"><span class="key">Adresse :</span> <span class="val empty" id="pv-adresse">—</span></div>
+      <div id="p-siret"><span class="key">SIRET :</span> <span class="val empty" id="pv-siret">—</span></div>
+      <div id="p-tarif"><span class="key">Tarif :</span> <span class="val empty" id="pv-tarif">—</span></div>
+      <div id="p-bleus"><span class="key">Cols bleus :</span> <span class="val empty" id="pv-bleus">—</span></div>
+      <div id="p-blancs"><span class="key">Cols blancs :</span> <span class="val empty" id="pv-blancs">—</span></div>
+      <div id="p-contact"><span class="key">Contact :</span> <span class="val empty" id="pv-contact">—</span></div>
+      <div id="p-fonction"><span class="key">Fonction :</span> <span class="val empty" id="pv-fonction">—</span></div>
+      <div id="p-tel"><span class="key">Tél :</span> <span class="val empty" id="pv-tel">—</span></div>
+      <div id="p-mail"><span class="key">Mail :</span> <span class="val empty" id="pv-mail">—</span></div>
+
+      <hr class="preview-sep" />
+      <div class="section-head">// infos société</div>
+      <div><span class="key">Secteur :</span> <span class="val empty" id="pv-secteur">—</span></div>
+      <div><span class="key">Groupe :</span> <span class="val empty" id="pv-groupe">—</span></div>
+      <div><span class="key">Effectif :</span> <span class="val empty" id="pv-effectif">—</span></div>
+      <div><span class="key">CA :</span> <span class="val empty" id="pv-ca">—</span></div>
+
+      <hr class="preview-sep" />
+      <div class="section-head">// signaux business</div>
+      <div class="signal-list" id="pv-signaux">—</div>
+      <div style="margin-top:6px;color:#fab387;" id="pv-signaux-detail"></div>
+    </div>
+
+    <!-- MAIL TAB -->
+    <div id="tab-mail" style="display:none;">
+      <div class="section-head">// mail interne création compte</div>
+      <div style="margin-bottom:8px;"><span class="key">Objet :</span> <span class="val highlight" id="pv-mail-objet">Création compte LEADER – [Nom entreprise]</span></div>
+      <hr class="preview-sep" />
+      <div id="pv-mail-body" style="white-space:pre-wrap;line-height:1.9;"></div>
+    </div>
+
+    <!-- ANGLE TAB -->
+    <div id="tab-angle" style="display:none;">
+      <div class="section-head">// angle commercial</div>
+      <div style="margin-bottom:10px;color:#cba6f7;" id="pv-angle">—</div>
+      <hr class="preview-sep" />
+      <div class="section-head">// objets mail</div>
+      <div id="pv-obj1" style="margin-bottom:4px;">1. <span class="val empty">—</span></div>
+      <div id="pv-obj2" style="margin-bottom:4px;">2. <span class="val empty">—</span></div>
+      <div id="pv-obj3">3. <span class="val empty">—</span></div>
+      <hr class="preview-sep" />
+      <div class="section-head">// inmail linkedin</div>
+      <div id="pv-inmail" style="white-space:pre-wrap;color:#94e2d5;line-height:1.8;"></div>
+    </div>
+
+    <div class="copy-bar">
+      <button class="copy-action" onclick="copyLeader()"><i class="fa-regular fa-copy"></i> Copier fiche</button>
+      <button class="copy-action" onclick="copyMail()"><i class="fa-solid fa-paper-plane"></i> Copier mail</button>
+      <button class="copy-action" onclick="exportTxt()"><i class="fa-solid fa-download"></i> .txt</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast">Copié !</div>
+
+<script>
+function v(id) { const el = document.getElementById(id); if (!el) return ''; return el.value.trim(); }
+
+function setVal(id, value, highlight) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (value) {
+    el.textContent = value;
+    el.classList.remove('empty');
+    if (highlight) el.classList.add('highlight');
+  } else {
+    el.textContent = '—';
+    el.classList.add('empty');
+    el.classList.remove('highlight');
+  }
+}
+
+function getSignals() {
+  return Array.from(document.querySelectorAll('.signal-toggle.on')).map(el => el.dataset.val);
+}
+
+function update() {
+  // LEADER fields
+  setVal('pv-nom', v('f-nom'), true);
+  setVal('pv-adresse', v('f-adresse'));
+  setVal('pv-siret', v('f-siret'));
+  setVal('pv-tarif', v('f-tarif'));
+  setVal('pv-bleus', v('f-bleus'));
+  setVal('pv-blancs', v('f-blancs'));
+  setVal('pv-contact', v('f-contact'));
+  setVal('pv-fonction', v('f-fonction'));
+  setVal('pv-tel', v('f-tel'));
+  setVal('pv-mail', v('f-mail'));
+  setVal('pv-secteur', v('f-secteur'));
+  setVal('pv-groupe', v('f-groupe'));
+  setVal('pv-effectif', v('f-effectif'));
+  setVal('pv-ca', v('f-ca'));
+
+  // Signaux
+  const sigs = getSignals();
+  const sigEl = document.getElementById('pv-signaux');
+  const sigDetEl = document.getElementById('pv-signaux-detail');
+  if (sigs.length) {
+    sigEl.textContent = sigs.map(s => '✓ ' + s).join('  ');
+    sigEl.style.color = '#94e2d5';
+  } else {
+    sigEl.textContent = '—';
+    sigEl.style.color = '#45475a';
+  }
+  sigDetEl.textContent = v('f-signaux') || '';
+
+  // Mail preview
+  const nom = v('f-nom') || '[Nom entreprise]';
+  const vendeur = v('f-vendeur') || '[Code vendeur + Nom]';
+  document.getElementById('pv-mail-objet').textContent = 'Création compte LEADER – ' + nom;
+  const mailBody = `Bonjour,
+
+Merci de créer le LEADER ci-dessous en l'attribuant sous mon code ${vendeur} + me créer un accès admin webshop : full options : Statistiques en ligne, liste partagée, mini contrat…
+
+Nom : ${v('f-nom') || '—'}
+Adresse : ${v('f-adresse') || '—'}
+SIRET : ${v('f-siret') || '—'}
+Tarif : ${v('f-tarif') || '—'}
+Cols bleus : ${v('f-bleus') || '—'}
+Cols blancs : ${v('f-blancs') || '—'}
+Contact : ${v('f-contact') || '—'}
+Fonction : ${v('f-fonction') || '—'}
+Tél : ${v('f-tel') || '—'}
+Mail : ${v('f-mail') || '—'}
+
+Merci pour votre aide.
+
+Bien à vous,
+${vendeur}`;
+  document.getElementById('pv-mail-body').textContent = mailBody;
+
+  // Angle preview
+  const angleEl = document.getElementById('pv-angle');
+  angleEl.textContent = v('f-angle') || '—';
+  const objs = ['f-obj1','f-obj2','f-obj3'];
+  objs.forEach((fid, i) => {
+    const el = document.getElementById('pv-obj' + (i+1));
+    const val = v(fid);
+    el.innerHTML = (i+1) + '. ' + (val ? `<span class="val">${val}</span>` : `<span class="val empty">—</span>`);
+  });
+  const inmailEl = document.getElementById('pv-inmail');
+  inmailEl.textContent = v('f-inmail') || '—';
+}
+
+function toggleSignal(el) { el.classList.toggle('on'); update(); }
+
+function switchTab(name, btn) {
+  ['leader','mail','angle'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function leaderText() {
+  return [
+    'Nom : ' + (v('f-nom')||'—'),
+    'Adresse : ' + (v('f-adresse')||'—'),
+    'SIRET : ' + (v('f-siret')||'—'),
+    'Tarif : ' + (v('f-tarif')||'—'),
+    'Cols bleus : ' + (v('f-bleus')||'—'),
+    'Cols blancs : ' + (v('f-blancs')||'—'),
+    'Contact : ' + (v('f-contact')||'—'),
+    'Fonction : ' + (v('f-fonction')||'—'),
+    'Tél : ' + (v('f-tel')||'—'),
+    'Mail : ' + (v('f-mail')||'—'),
+  ].join('\n');
+}
+
+function mailText() {
+  const nom = v('f-nom') || '[Nom entreprise]';
+  const vendeur = v('f-vendeur') || '[Code vendeur + Nom]';
+  return `Objet : Création compte LEADER – ${nom}\n\nBonjour,\n\nMerci de créer le LEADER ci-dessous en l'attribuant sous mon code ${vendeur} + me créer un accès admin webshop : full options : Statistiques en ligne, liste partagée, mini contrat…\n\n${leaderText()}\n\nMerci pour votre aide.\n\nBien à vous,\n${vendeur}`;
+}
+
+function copyLeader() { navigator.clipboard.writeText(leaderText()).then(showToast); }
+function copyMail() { navigator.clipboard.writeText(mailText()).then(showToast); }
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function exportTxt() {
+  const sigs = getSignals();
+  const content = `FICHE PROSPECTION LYRECO MIDMARKET\n${'='.repeat(50)}\n\n1. SOCIÉTÉ\nNom : ${v('f-nom')||'—'}\nAdresse : ${v('f-adresse')||'—'}\nSIRET : ${v('f-siret')||'—'}\nNAF : ${v('f-naf')||'—'}\nSecteur : ${v('f-secteur')||'—'}\nGroupe : ${v('f-groupe')||'—'}\nEffectif : ${v('f-effectif')||'—'}\nCA : ${v('f-ca')||'—'}\n\n2. RÉPARTITION\nCols bleus : ${v('f-bleus')||'—'}\nCols blancs : ${v('f-blancs')||'—'}\n${v('f-repartition-note')||''}\n\n3. CONTACTS\nContact : ${v('f-contact')||'—'}\nFonction : ${v('f-fonction')||'—'}\nTél : ${v('f-tel')||'—'}\nMail : ${v('f-mail')||'—'}\nLinkedIn : ${v('f-linkedin')||'—'}\nAutres : ${v('f-contacts2')||'—'}\n\n4. SIGNAUX BUSINESS\n${sigs.length ? sigs.map(s=>'✓ '+s).join('\n') : '—'}\n${v('f-signaux')||''}\n\n${'='.repeat(50)}\nFICHE LEADER\n${'='.repeat(50)}\n${leaderText()}\n\n${'='.repeat(50)}\nMAIL INTERNE\n${'='.repeat(50)}\n${mailText()}\n\n${'='.repeat(50)}\nANGLE COMMERCIAL\n${'='.repeat(50)}\nAngle : ${v('f-angle')||'—'}\n\nObjets mail :\n1. ${v('f-obj1')||'—'}\n2. ${v('f-obj2')||'—'}\n3. ${v('f-obj3')||'—'}\n\nInMail LinkedIn :\n${v('f-inmail')||'—'}`;
+  const nom = v('f-nom') || 'prospect';
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'lyreco_prospection_' + nom.replace(/\s+/g,'_').substring(0,30) + '.txt';
+  a.click();
+}
+
+function clearAll() {
+  ['f-nom','f-adresse','f-siret','f-naf','f-secteur','f-groupe','f-effectif','f-ca',
+   'f-bleus','f-blancs','f-repartition-note','f-contact','f-fonction','f-tel','f-mail',
+   'f-linkedin','f-contacts2','f-signaux','f-tarif','f-vendeur',
+   'f-angle','f-obj1','f-obj2','f-obj3','f-inmail','company-search'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.signal-toggle').forEach(el => el.classList.remove('on'));
+  update();
+}
+
+function launchAnalysis() {
+  const q = document.getElementById('company-search').value.trim();
+  if (!q) { document.getElementById('company-search').focus(); return; }
+  const prompt = `Analyse cette entreprise dans une optique de prospection B2B pour Lyreco MidMarket : ${q}. Complète la fiche LEADER avec : 1) Infos société (nom exact, adresse siège France, SIRET, secteur, groupe, effectif France) 2) Répartition cols bleus / cols blancs 3) Contacts clés publics (Achats, DAF, Services Généraux, Office Manager) avec poste, email si dispo, LinkedIn 4) Signaux business (croissance, nouveaux sites, RSE, M&A, digital achats) 5) Fiche LEADER prête à copier 6) Mail interne création compte LEADER 7) Angle commercial : accroche, 3 objets mail, InMail LinkedIn.`;
+  navigator.clipboard.writeText(prompt).then(() => showToast('Prompt copié ! Colle-le dans Claude ↗'));
+}
+
+function loadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const map = {
+    nom:'f-nom', adresse:'f-adresse', siret:'f-siret', naf:'f-naf',
+    secteur:'f-secteur', groupe:'f-groupe', effectif:'f-effectif', ca:'f-ca',
+    bleus:'f-bleus', blancs:'f-blancs', note:'f-repartition-note',
+    contact:'f-contact', fonction:'f-fonction', tel:'f-tel', mail:'f-mail',
+    linkedin:'f-linkedin', contacts2:'f-contacts2', signaux_detail:'f-signaux',
+    tarif:'f-tarif', vendeur:'f-vendeur',
+    angle:'f-angle', obj1:'f-obj1', obj2:'f-obj2', obj3:'f-obj3', inmail:'f-inmail'
+  };
+  let hasData = false;
+  Object.entries(map).forEach(([param, fieldId]) => {
+    const val = params.get(param);
+    if (val) {
+      const el = document.getElementById(fieldId);
+      if (el) { el.value = val; hasData = true; }
+    }
+  });
+  const signaux = params.get('signaux');
+  if (signaux) {
+    signaux.split(',').forEach(sig => {
+      document.querySelectorAll('.signal-toggle').forEach(el => {
+        if (el.dataset.val === sig.trim()) el.classList.add('on');
+      });
+    });
+    hasData = true;
+  }
+  if (hasData) {
+    update();
+    setTimeout(() => showToast('Fiche chargée automatiquement !'), 400);
+  }
+}
+
+loadFromURL();
+update();
+</script>
+</body>
+</html>
